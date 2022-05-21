@@ -1,0 +1,26 @@
+# Full credits to Marek Kubica who created this action:
+# - https://github.com/tarides/changelog-check-action
+# - https://github.com/marketplace/actions/check-changelog-for-changes
+name: "Check Changelog for changes"
+
+"on":
+  pull_request:
+    types: ["opened", "reopened", "edited", "synchronize", "labeled", "unlabeled"]
+    branches:
+      - "main"
+
+jobs:
+  check-changelog:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 0
+
+      - name: "Check for changes in changelog"
+        if: "${{ contains(github.event.pull_request.labels.*.name, 'no changelog') != true }}"
+        run: |
+          # a changelog check is required
+          # fail if the diff is empty
+          ! git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md
